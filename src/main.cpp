@@ -5,16 +5,35 @@
 int getRandomInt(int x, int y);
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
+    sf::RenderWindow window(sf::VideoMode(1000 , 1000), "SFML works!");
     window.setFramerateLimit(60);
 
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Yellow);
+    sf::CircleShape shape(10);
+    //shape.setFillColor(sf::Color::Blue);
+    shape.setPosition(500, 900);
+
+    sf::Texture texture;
+    if (!texture.loadFromFile("../jojo.png")) {
+        std::cout << "Error!" << std::endl;
+    }
+
+    shape.setTexture(&texture);
 
     TimeUtil tu;
     tu.setTime();
 
-    int totalTime = 0;
+    int totalTime;
+    int speed = 5;
+    float turnSpeed = .1;
+
+    float direction = 0.f;
+    int moveX = 0;
+    int moveY = 0;
+
+    shape.setOrigin(10, 10);
+
+    std::vector<sf::CircleShape> circles;
+
 
     while (window.isOpen()) {
         tu.setTime();
@@ -22,18 +41,59 @@ int main() {
 
         totalTime = 0;
 
+        shape.setRotation(direction);
+
+        //moveX += speed * cos(direction);
+        //moveY += speed * sin(direction);
+
         sf::Event event;
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window.close();
 
-            if(event.type == sf::Event::TextEntered) {
+            /*if(event.type == sf::Event::TextEntered) {
                 if(event.text.unicode == 0) {}
-            }
+            }*/
         }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+            /*if(direction >= 0 && direction <= 90) {
+                shape.move(0, -speed);
+            }*/
+            circles.push_back(shape);
+            shape.move(speed * cos(direction), speed * sin(direction));
+        }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+            shape.move(0, speed);
+        }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+            direction += turnSpeed;
+        }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+            direction -= turnSpeed;
+        }
+
+        if(direction > 6.4)
+            direction = 0.f;
+        if(direction < 0.f)
+            direction = 6.4;
+
+        /*if(direction > 360.f)
+            direction = 0.f;
+        if(direction < 0.f)
+            direction = 360.f;*/
+
+        std::cout << direction << std::endl;
 
         window.clear(sf::Color::Black);
         window.draw(shape);
+
+        for(int i = 0; i < circles.size(); i++) {
+            window.draw(circles[i]);
+        }
         window.display();
     }
 

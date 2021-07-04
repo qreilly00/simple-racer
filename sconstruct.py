@@ -1,7 +1,7 @@
 # build option variables
 
 bld = 0 # 0 = test; 1 = release
-env = 0 # 0 = c++; 1 = c++ & sfml
+env = 1 # 0 = c++; 1 = c++ & sfml
 
 # build location variables
 
@@ -13,11 +13,11 @@ varTrg0 = 'bin/test/'
 varObj1 = 'bld/release/'
 varTrg1 = 'bin/release/'
 
-srcFiles = ['main.cpp']
+srcFiles = ['main.cpp', 'timeUtil/getTime.cpp', 'timeUtil/setTime.cpp', 'timeUtil/TimeUtil.cpp']
 src = []
 trg = 'app'
 
-libs = ['sfml-window', 'sfml-graphics', 'sfml-system']
+libs = ['sfml-system', 'sfml-window', 'sfml-graphics', 'sfml-audio']
 libpath = ['lib/SFML-2.5.1/lib']
 
 tmpTrg = ""
