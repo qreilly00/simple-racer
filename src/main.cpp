@@ -11,6 +11,7 @@ int main() {
     sf::CircleShape shape(10);
     //shape.setFillColor(sf::Color::Blue);
     shape.setPosition(500, 900);
+    shape.setOrigin(10, 10);
 
     /*sf::Texture texture;
     if (!texture.loadFromFile("../jojo.png")) {
@@ -23,14 +24,12 @@ int main() {
     tu.setTime();
 
     int totalTime;
-    int speed = 5;
+    int speed = M_PI * 2;
     double turnSpeed = M_PI / 16;
-
     double direction = (M_PI / 2) * 3;
-    int moveX = 0;
-    int moveY = 0;
 
-    shape.setOrigin(10, 10);
+    int pauses = 1;
+    int pausesLeft = pauses;
 
     std::vector<sf::CircleShape> circles;
 
@@ -56,22 +55,30 @@ int main() {
             }*/
         }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+        circles.push_back(shape);
+        shape.move(speed * cos(direction), speed * sin(direction));
+
+        /*if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
             circles.push_back(shape);
             shape.move(speed * cos(direction), speed * sin(direction));
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
             shape.move(-speed * cos(direction), -speed * sin(direction));
-        }
+        }*/
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
-            direction += turnSpeed;
-        }
+        if(pausesLeft == 0) {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+                direction += turnSpeed;
+            }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
-            direction -= turnSpeed;
-        }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+                direction -= turnSpeed;
+            }
+
+            pausesLeft = pauses;
+        } else
+            pausesLeft--;
 
         if(direction > M_PI * 2)
             direction = 0.f;
@@ -83,13 +90,19 @@ int main() {
         if(direction < 0.f)
             direction = 360.f;*/
 
-        std::cout << direction << std::endl;
+        //std::cout << turnSpeed << std::endl;
+
+        if(circles.size() == 1000) {
+            circles.erase(circles.begin());
+        }
 
         window.clear(sf::Color::Black);
         window.draw(shape);
 
         for(int i = 0; i < circles.size(); i++) {
             window.draw(circles[i]);
+            if(circles.size() > 10 && i < circles.size() - 10)
+                if(shape.getGlobalBounds().intersects(circles[i].getGlobalBounds())) return 0;
         }
         window.display();
     }
