@@ -92,7 +92,7 @@ int main() {
 
         //std::cout << turnSpeed << std::endl;
 
-        if(circles.size() == 1000) {
+        if(circles.size() == 300) {
             circles.erase(circles.begin());
         }
 
