@@ -8,22 +8,15 @@ int main() {
     sf::RenderWindow window(sf::VideoMode(1000 , 1000), "SFML works!");
     window.setFramerateLimit(60);
 
-    sf::CircleShape shape(10);
-    //shape.setFillColor(sf::Color::Blue);
-    shape.setPosition(500, 900);
-    shape.setOrigin(10, 10);
-
-    /*sf::Texture texture;
-    if (!texture.loadFromFile("../jojo.png")) {
-        std::cout << "Error!" << std::endl;
-    }
-
-    shape.setTexture(&texture);*/
+    sf::CircleShape snakeHead(10);
+    snakeHead.setPosition(500, 900);
+    snakeHead.setOrigin(10, 10);
 
     TimeUtil tu;
     tu.setTime();
+    int totalTime = 0;
 
-    int totalTime;
+    // Not sure if PI is needed here, but I'll keep it for now.
     int speed = M_PI * 2;
     double turnSpeed = M_PI / 16;
     double direction = (M_PI / 2) * 3;
@@ -31,42 +24,33 @@ int main() {
     int pauses = 1;
     int pausesLeft = pauses;
 
-    std::vector<sf::CircleShape> circles;
+    std::vector<sf::CircleShape> snakeBody;
+    int snakeLength = 50;
 
+    sf::CircleShape food(10);
+    food.setFillColor(sf::Color::Green);
+    food.setPosition(-20, -20);
+    food.setOrigin(10, 10);
+
+    bool foodExists = 0;
 
     while (window.isOpen()) {
         tu.setTime();
         totalTime += tu.getTime();
 
-        totalTime = 0;
-
-        shape.setRotation(direction);
-
-        //moveX += speed * cos(direction);
-        //moveY += speed * sin(direction);
+        snakeHead.setRotation(direction);
 
         sf::Event event;
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window.close();
-
-            /*if(event.type == sf::Event::TextEntered) {
-                if(event.text.unicode == 0) {}
-            }*/
         }
 
-        circles.push_back(shape);
-        shape.move(speed * cos(direction), speed * sin(direction));
+        // Add a shadow of the snake head to the body.
+        snakeBody.push_back(snakeHead);
+        snakeHead.move(speed * cos(direction), speed * sin(direction));
 
-        /*if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
-            circles.push_back(shape);
-            shape.move(speed * cos(direction), speed * sin(direction));
-        }
-
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-            shape.move(-speed * cos(direction), -speed * sin(direction));
-        }*/
-
+        // Controls. Only activated once pauses are depleted to increase turning radius.
         if(pausesLeft == 0) {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
                 direction += turnSpeed;
@@ -80,30 +64,69 @@ int main() {
         } else
             pausesLeft--;
 
+        // Reset rotation when limit is reached.
         if(direction > M_PI * 2)
             direction = 0.f;
         if(direction < 0.f)
             direction = M_PI * 2;
 
-        /*if(direction > 360.f)
-            direction = 0.f;
-        if(direction < 0.f)
-            direction = 360.f;*/
+        if(snakeBody.size() == snakeLength) {
+            snakeBody.erase(snakeBody.begin());
+        }
 
-        //std::cout << turnSpeed << std::endl;
+        // Left screen.
+        if(snakeHead.getPosition().x <= 20) {
+            snakeHead.setPosition(window.getSize().x - 20, snakeHead.getPosition().y);
+        }
 
-        if(circles.size() == 300) {
-            circles.erase(circles.begin());
+        // Right screen.
+        if(snakeHead.getPosition().x >= window.getSize().x - 10) {
+            snakeHead.setPosition(20, snakeHead.getPosition().y);
+        }
+
+        // Top Screen.
+        if(snakeHead.getPosition().y <= 20) {
+            snakeHead.setPosition(snakeHead.getPosition().x, window.getSize().y - 20);
+        }
+
+        // Bottom Screen.
+        if(snakeHead.getPosition().y >= window.getSize().y - 10) {
+            snakeHead.setPosition(snakeHead.getPosition().x, 20);
+        }
+
+        // Food eaten.
+        if(snakeHead.getGlobalBounds().intersects(food.getGlobalBounds())) {
+            snakeLength += 10;
+            foodExists = 0;
+            food.setPosition(-20, -20);
         }
 
         window.clear(sf::Color::Black);
-        window.draw(shape);
+        window.draw(snakeHead);
+        window.draw(food);
 
-        for(int i = 0; i < circles.size(); i++) {
-            window.draw(circles[i]);
-            if(circles.size() > 10 && i < circles.size() - 10)
-                if(shape.getGlobalBounds().intersects(circles[i].getGlobalBounds())) return 0;
+        // Snake body draw, collision and pellet hybrid.
+        for(int i = 0; i < snakeBody.size(); i++) {
+            window.draw(snakeBody[i]);
+
+            // Game over.
+            if(snakeBody.size() > 10 && i < snakeBody.size() - 10)
+                if(snakeHead.getGlobalBounds().intersects(snakeBody[i].getGlobalBounds())) return 0;
+
+            // Add new food.
+            if(foodExists == 0 && totalTime > 1000) {
+                sf::CircleShape tmpCircle;
+                tmpCircle.setPosition(getRandomInt(40, window.getSize().x - 40), getRandomInt(40, window.getSize().y - 40));
+
+                // No intersects found.
+                if(!snakeBody[i].getGlobalBounds().intersects(tmpCircle.getGlobalBounds())) {
+                    food.setPosition(tmpCircle.getPosition());
+                    foodExists = 1;
+                }
+                totalTime = 0;
+            }
         }
+
         window.display();
     }
 
