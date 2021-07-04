@@ -5,7 +5,7 @@
 int getRandomInt(int x, int y);
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(1000 , 1000), "SFML works!");
+    sf::RenderWindow window(sf::VideoMode(500 , 500), "SFML works!");
     window.setFramerateLimit(60);
 
     sf::CircleShape snakeHead(10);
@@ -17,7 +17,7 @@ int main() {
     int totalTime = 0;
 
     // Not sure if PI is needed here, but I'll keep it for now.
-    int speed = M_PI * 2;
+    int speed = M_PI;
     double turnSpeed = M_PI / 16;
     double direction = (M_PI / 2) * 3;
 
@@ -29,7 +29,7 @@ int main() {
 
     sf::CircleShape food(10);
     food.setFillColor(sf::Color::Green);
-    food.setPosition(-20, -20);
+    food.setPosition(-40, -40);
     food.setOrigin(10, 10);
 
     bool foodExists = 0;
@@ -105,6 +105,12 @@ int main() {
         window.draw(snakeHead);
         window.draw(food);
 
+        int foodCheckCounter = 0;
+
+        sf::CircleShape tmpCircle(10.f);
+        tmpCircle.setPosition(getRandomInt(40, window.getSize().x - 40), getRandomInt(40, window.getSize().y - 40));
+        tmpCircle.setOrigin(10.f, 10.f);
+
         // Snake body draw, collision and pellet hybrid.
         for(int i = 0; i < snakeBody.size(); i++) {
             window.draw(snakeBody[i]);
@@ -114,17 +120,18 @@ int main() {
                 if(snakeHead.getGlobalBounds().intersects(snakeBody[i].getGlobalBounds())) return 0;
 
             // Add new food.
-            if(foodExists == 0 && totalTime > 1000) {
-                sf::CircleShape tmpCircle;
-                tmpCircle.setPosition(getRandomInt(40, window.getSize().x - 40), getRandomInt(40, window.getSize().y - 40));
-
-                // No intersects found.
+            if(foodExists == 0 && totalTime > 1000) {// No intersects found.
                 if(!snakeBody[i].getGlobalBounds().intersects(tmpCircle.getGlobalBounds())) {
-                    food.setPosition(tmpCircle.getPosition());
-                    foodExists = 1;
+                    foodCheckCounter++;
                 }
-                totalTime = 0;
             }
+        }
+
+        if(foodCheckCounter == snakeLength - 1) {
+            food.setPosition(tmpCircle.getPosition());
+            foodExists = 1;
+            foodCheckCounter = 0;
+            //totalTime = 0;
         }
 
         window.display();
