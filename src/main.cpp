@@ -12,21 +12,21 @@ int main() {
     //shape.setFillColor(sf::Color::Blue);
     shape.setPosition(500, 900);
 
-    sf::Texture texture;
+    /*sf::Texture texture;
     if (!texture.loadFromFile("../jojo.png")) {
         std::cout << "Error!" << std::endl;
     }
 
-    shape.setTexture(&texture);
+    shape.setTexture(&texture);*/
 
     TimeUtil tu;
     tu.setTime();
 
     int totalTime;
     int speed = 5;
-    float turnSpeed = .1;
+    double turnSpeed = M_PI / 16;
 
-    float direction = 0.f;
+    double direction = (M_PI / 2) * 3;
     int moveX = 0;
     int moveY = 0;
 
@@ -57,15 +57,12 @@ int main() {
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
-            /*if(direction >= 0 && direction <= 90) {
-                shape.move(0, -speed);
-            }*/
             circles.push_back(shape);
             shape.move(speed * cos(direction), speed * sin(direction));
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-            shape.move(0, speed);
+            shape.move(-speed * cos(direction), -speed * sin(direction));
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
@@ -76,10 +73,10 @@ int main() {
             direction -= turnSpeed;
         }
 
-        if(direction > 6.4)
+        if(direction > M_PI * 2)
             direction = 0.f;
         if(direction < 0.f)
-            direction = 6.4;
+            direction = M_PI * 2;
 
         /*if(direction > 360.f)
             direction = 0.f;
